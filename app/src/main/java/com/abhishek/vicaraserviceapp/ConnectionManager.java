@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
+import android.util.Log;
 
 public class ConnectionManager {
 
@@ -21,7 +22,6 @@ public class ConnectionManager {
 
     public static String getNetworkState(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        ConnectivityManager.NetworkCallback cmNetworkCallback = new ConnectivityManager.NetworkCallback();
         NetworkCapabilities currNetwork = cm.getNetworkCapabilities(cm.getActiveNetwork());
 
         if (currNetwork == null)
@@ -31,7 +31,7 @@ public class ConnectionManager {
         else if (currNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI))
             return NetworkStateOn;
 
-        return NetworkStateOn;
+        return NetworkStateOff;
     }
 
     public static String getBluetoothState() {

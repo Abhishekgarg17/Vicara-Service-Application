@@ -1,8 +1,13 @@
 package com.abhishek.vicaraserviceapp;
 
 import android.annotation.SuppressLint;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,6 +15,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -67,6 +73,20 @@ public class MainActivity extends AppCompatActivity {
         TextView networkStatusTextView = findViewById(R.id.wifiStatus);
         networkState = ConnectionManager.getNetworkState(getApplicationContext());
         networkStatusTextView.setText(networkState);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            scheduleJob();
+    }
+
+    private void scheduleJob() {
+        JobInfo myJob = new JobInfo.Builder(0, new ComponentName(this, NetworkSchedulerService.class))
+                .setMinimumLatency(500)
+                .setOverrideDeadline(1000)
+                .build();
+
+        JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        jobScheduler.schedule(myJob);
+        Log.d("MainActivity","Job Scheduled");
     }
 
     @SuppressLint("SetTextI18n")
@@ -107,14 +127,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startService() {
-        Intent serviceIntent = new Intent(this, NetworkService.class);
+        Intent serviceIntent = new Intent(this, NotificationService.class);
         serviceIntent.putExtra("network_data_extra", networkState);
         serviceIntent.putExtra("bluetooth_data_extra", bluetoothState);
         ContextCompat.startForegroundService(this, serviceIntent);
     }
 
     public void stopService() {
-        Intent serviceIntent = new Intent(this, NetworkService.class);
+        Intent serviceIntent = new Intent(this, NotificationService.class);
         stopService(serviceIntent);
     }
 

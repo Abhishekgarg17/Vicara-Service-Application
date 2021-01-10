@@ -4,11 +4,20 @@ import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
 
-public class StateChangeBroadcastReceiver extends BroadcastReceiver {
+public class ConnectivityReceiver extends BroadcastReceiver {
+    private ConnectivityReceiverListener mConnectivityReceiverListener;
+
+    ConnectivityReceiver(ConnectivityReceiverListener listener) {
+        mConnectivityReceiverListener = listener;
+    }
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        mConnectivityReceiverListener.onNetworkConnectionChanged();
+
         String networkStatus = ConnectionManager.getNetworkState(context);
         String bluetoothStatus = ConnectionManager.getBluetoothState();
 
@@ -16,6 +25,9 @@ public class StateChangeBroadcastReceiver extends BroadcastReceiver {
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(1, NotificationService.getNotification(context, networkStatus, bluetoothStatus));
 
-        MainActivity.instance.updateUI();
+    }
+
+    public interface ConnectivityReceiverListener {
+        void onNetworkConnectionChanged();
     }
 }
