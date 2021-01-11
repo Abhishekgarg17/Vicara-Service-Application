@@ -20,7 +20,7 @@ public class NotificationService extends Service {
 
         return new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setContentTitle("Network Service State")
-                .setContentText("Network : " + networkState + "\nBluetooth : " + bluetoothState)
+                .setContentText("Network : " + networkState + "\n|\nBluetooth : " + bluetoothState)
                 .setSmallIcon(R.mipmap.ic_launcher_round)
                 .setContentIntent(pendingIntent)
                 .setOnlyAlertOnce(true)

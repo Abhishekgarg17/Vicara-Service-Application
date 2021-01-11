@@ -32,11 +32,14 @@ public class MainActivity extends AppCompatActivity {
 
     static MainActivity instance;
 
+    JobScheduler jobScheduler ;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         instance = this;
+        jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -73,9 +76,6 @@ public class MainActivity extends AppCompatActivity {
         TextView networkStatusTextView = findViewById(R.id.wifiStatus);
         networkState = ConnectionManager.getNetworkState(getApplicationContext());
         networkStatusTextView.setText(networkState);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-            scheduleJob();
     }
 
     private void scheduleJob() {
@@ -84,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
                 .setOverrideDeadline(1000)
                 .build();
 
-        JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
         jobScheduler.schedule(myJob);
         Log.d("MainActivity","Job Scheduled");
     }
@@ -131,11 +130,18 @@ public class MainActivity extends AppCompatActivity {
         serviceIntent.putExtra("network_data_extra", networkState);
         serviceIntent.putExtra("bluetooth_data_extra", bluetoothState);
         ContextCompat.startForegroundService(this, serviceIntent);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            scheduleJob();
     }
 
     public void stopService() {
         Intent serviceIntent = new Intent(this, NotificationService.class);
         stopService(serviceIntent);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+            jobScheduler.cancel(0);
+        }
     }
 
     public void updateUI() {
